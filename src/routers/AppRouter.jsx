@@ -1,5 +1,5 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom"
-import { MainMenu } from "../components/mainMenu"
+import { MainMenu } from "../components/MainMenu"
 import { Login } from "../components/auth/Login"
 import { RegistroUsuario } from "../components/auth/RegistroUsuario"
 
