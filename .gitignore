@@ -42,3 +42,18 @@ dist-ssr
 
 # TypeScript
 *.tsbuildinfo
+
+# Cloud sync files (to avoid conflicts between home/work computers)
+.DS_Store
+Thumbs.db
+*.tmp
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# MEGA sync temporary files
+.MEGAignore
+*.meg
+*.mega
