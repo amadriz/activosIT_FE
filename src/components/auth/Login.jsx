@@ -35,7 +35,7 @@ export const Login = () => {
   };
 
   const validatePassword = (password) => {
-    return password.length >= 6; // Example: Password must be at least 6 characters long
+    return password.length >= 6; 
   };
 
 
