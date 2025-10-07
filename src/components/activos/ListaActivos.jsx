@@ -329,6 +329,19 @@ export const ListaActivos = () => {
           </div>
         </Col>
       </Row>
+      
+      <Row className="mt-3">
+        <Col className="text-center">
+          <Button
+            variant="success"
+            size="lg"
+            onClick={() => navigate('/agregaractivo')}
+            className="d-inline-flex align-items-center justify-content-center"
+          >
+            <i className="bi bi-plus-lg me-2"></i> Agregar Activo
+          </Button>
+        </Col>
+      </Row>
     </Container>
   );
 };

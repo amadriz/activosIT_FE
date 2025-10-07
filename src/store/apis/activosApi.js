@@ -9,11 +9,20 @@ export const activosApi = createApi({
     getActivos: builder.query({
       query: () => '/activos/fetchActivos',
       providesTags: ['Activo'],
-        
-       
-  }),
+    }),
+
+    addActivo: builder.mutation({
+      query: (newActivo) => ({
+        url: '/activos/agregarActivos',
+        method: 'POST',
+        body: newActivo,
+      }),
+      invalidatesTags: ['Activo'],
+    }),
+
+    
 }),
 
 });
 
-export const { useGetActivosQuery } = activosApi;
+export const { useGetActivosQuery, useAddActivoMutation } = activosApi;
