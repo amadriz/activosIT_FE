@@ -165,7 +165,7 @@ export const ActualizarActivos = () => {
   return (
     <Container className="mt-4">
       <Row className="justify-content-center">
-        <Col md={10} lg={8}>
+        <Col md={10} lg={8} className='mb-5'>
           <div className="card">
             <div className="card-header">
               <h3 className="mb-0">Actualizar Activo</h3>
