@@ -5,6 +5,7 @@ import { useGetUbicacionesQuery } from '../../store/apis/ubicacionesApi';
 import { useGetMarcasQuery } from '../../store/apis/marcasApi';
 import { useGetEstadosQuery } from '../../store/apis/estadosApi';
 import { useGetProveedoresQuery } from '../../store/apis/proveedoresApi';
+import { useGetUsuariosQuery } from '../../store/apis/authApi';
 
 import { Container, Row, Col, Form, Button, Card } from "react-bootstrap";
 
@@ -44,6 +45,7 @@ export const AgregarActivos = () => {
   const { data: marcasData, isLoading: loadingMarcas } = useGetMarcasQuery();
   const { data: estadosData, isLoading: loadingEstados } = useGetEstadosQuery();
   const { data: proveedoresData, isLoading: loadingProveedores } = useGetProveedoresQuery();
+  const { data: usuariosData } = useGetUsuariosQuery();
 
   // Extraer info de los apis, manejando posibles estructuras
   const activos = Array.isArray(activosData) ? activosData : (activosData?.data || []);
@@ -52,6 +54,7 @@ export const AgregarActivos = () => {
   const marcas = Array.isArray(marcasData) ? marcasData : (marcasData?.data || []);
   const estados = Array.isArray(estadosData) ? estadosData : (estadosData?.data || []);
   const proveedores = Array.isArray(proveedoresData) ? proveedoresData : (proveedoresData?.data || []);
+  const usuarios = Array.isArray(usuariosData) ? usuariosData : (usuariosData?.data || []);
 
   const [validated, setValidated] = useState(false);
 
@@ -152,7 +155,7 @@ export const AgregarActivos = () => {
       
       // Navigate after a brief delay to show the success message
       setTimeout(() => {
-        navigate('/activos');
+        navigate('/listaactivos');
       }, 1500);
     } catch (error) {
       console.error('Error adding activo:', error);
@@ -359,16 +362,21 @@ export const AgregarActivos = () => {
                   <Col md={6}>
                     <Form.Group className="mb-3">
                       <Form.Label>Usuario Registro</Form.Label>
-                      <Form.Control
-                      required
-                        type="text"
+                      <Form.Select
+                        required
                         name="usuario_registro"
                         value={formData.usuario_registro}
                         onChange={handleInputChange}
-                        placeholder="Usuario que registra"
-                      />
+                      >
+                        <option value="">Seleccionar usuario</option>
+                        {usuarios.map((usuario) => (
+                          <option key={usuario.id_usuario} value={usuario.id_usuario}>
+                            {usuario.nombre} {usuario.apellido} - {usuario.rol}
+                          </option>
+                        ))}
+                      </Form.Select>
                       <Form.Control.Feedback type="invalid">
-                        Debe ingresar el usuario.
+                        Debe seleccionar un usuario.
                       </Form.Control.Feedback>
                     </Form.Group>
                   </Col>

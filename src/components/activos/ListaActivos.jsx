@@ -198,7 +198,7 @@ export const ListaActivos = () => {
           <Button
             variant="outline-primary"
             size="sm"
-            onClick={() => { navigate(`/actualizaragente/${row.id_activo}`); }}
+            onClick={() => { navigate(`/actualizaractivos/${row.id_activo}`); }}
             title="Editar"
           >
             ✏️

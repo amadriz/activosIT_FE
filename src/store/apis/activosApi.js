@@ -40,4 +40,4 @@ export const activosApi = createApi({
 
 });
 
-export const { useGetActivosQuery, useAddActivoMutation, useDeleteActivoMutation } = activosApi;
+export const { useGetActivosQuery, useAddActivoMutation, useUpdateActivoMutation, useDeleteActivoMutation } = activosApi;

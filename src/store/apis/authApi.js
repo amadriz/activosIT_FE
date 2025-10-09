@@ -7,7 +7,7 @@ export const authApi = createApi({
     baseQuery: fetchBaseQuery({ baseUrl: 'http://localhost/activosIT_BE/' }),
     endpoints: (builder) => ({
         getUsuarios: builder.query({
-            query: () => 'Usuario/getUsuarios',
+            query: () => 'Usuario/fetchUsers',
         }),
         login: builder.mutation({
             query: (loginData) => ({
