@@ -20,9 +20,24 @@ export const activosApi = createApi({
       invalidatesTags: ['Activo'],
     }),
 
+    updateActivo: builder.mutation({
+        query: ({ id, ...updatedActivo }) => ({
+            url: `activos/actualizarActivos/${id}`,
+            method: 'PUT',
+            body: updatedActivo,
+        }),
+        invalidatesTags: ['Activo'],
+    }),
     
+    deleteActivo: builder.mutation({
+        query: (id) => ({
+            url: `activos/eliminarActivos/${id}`,
+            method: 'DELETE',
+        }),
+        invalidatesTags: ['Activo'],
+    }),
 }),
 
 });
 
-export const { useGetActivosQuery, useAddActivoMutation } = activosApi;
+export const { useGetActivosQuery, useAddActivoMutation, useDeleteActivoMutation } = activosApi;

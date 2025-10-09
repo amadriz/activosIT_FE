@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useAddActivoMutation } from '../../store/apis/activosApi';
+import { useAddActivoMutation, useGetActivosQuery } from '../../store/apis/activosApi';
 import { useGetCategoriasQuery } from '../../store/apis/categoriasApi';
 import { useGetUbicacionesQuery } from '../../store/apis/ubicacionesApi';
 import { useGetMarcasQuery } from '../../store/apis/marcasApi';
@@ -12,11 +12,14 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
 const initialState = {
+  codigo_activo: '',
   nombre_activo: '',
+  descripcion: '',
   id_categoria: '',
   id_marca: '',
   id_ubicacion: '',
   id_estado: '',
+  id_proveedor: '',
   modelo: '',
   numero_serie: '',
   fecha_adquisicion: '',
@@ -35,6 +38,7 @@ export const AgregarActivos = () => {
 
   // RTK Query hooks
   const [addActivo] = useAddActivoMutation();
+  const { data: activosData } = useGetActivosQuery();
   const { data: categoriasData, isLoading: loadingCategorias } = useGetCategoriasQuery();
   const { data: ubicacionesData, isLoading: loadingUbicaciones } = useGetUbicacionesQuery();
   const { data: marcasData, isLoading: loadingMarcas } = useGetMarcasQuery();
@@ -42,6 +46,7 @@ export const AgregarActivos = () => {
   const { data: proveedoresData, isLoading: loadingProveedores } = useGetProveedoresQuery();
 
   // Extraer info de los apis, manejando posibles estructuras
+  const activos = Array.isArray(activosData) ? activosData : (activosData?.data || []);
   const categorias = Array.isArray(categoriasData) ? categoriasData : (categoriasData?.data || []);
   const ubicaciones = Array.isArray(ubicacionesData) ? ubicacionesData : (ubicacionesData?.data || []);
   const marcas = Array.isArray(marcasData) ? marcasData : (marcasData?.data || []);
@@ -67,6 +72,35 @@ export const AgregarActivos = () => {
     return true;
   };
 
+  // Validate for duplicates using existing activos data
+  const validateDuplicates = () => {
+    const errors = [];
+
+    // Check codigo_activo duplicate
+    if (formData.codigo_activo && formData.codigo_activo.trim() !== '') {
+      const codigoExists = activos.some(activo => 
+        activo.codigo_activo && 
+        activo.codigo_activo.toLowerCase() === formData.codigo_activo.trim().toLowerCase()
+      );
+      if (codigoExists) {
+        errors.push(`El código "${formData.codigo_activo}" ya existe en el sistema`);
+      }
+    }
+
+    // Check numero_serie duplicate (only if provided)
+    if (formData.numero_serie && formData.numero_serie.trim() !== '') {
+      const serieExists = activos.some(activo => 
+        activo.numero_serie && 
+        activo.numero_serie.toLowerCase() === formData.numero_serie.trim().toLowerCase()
+      );
+      if (serieExists) {
+        errors.push(`El número de serie "${formData.numero_serie}" ya existe en el sistema`);
+      }
+    }
+
+    return errors;
+  };
+
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -80,9 +114,30 @@ export const AgregarActivos = () => {
       return;
     }
 
+    // Additional validations
+    if (!formData.codigo_activo || formData.codigo_activo.trim() === '') {
+      toast.error('El código del activo es obligatorio y no puede estar vacío');
+      setIsLoading(false);
+      return;
+    }
+
+    if (!formData.nombre_activo || formData.nombre_activo.trim() === '') {
+      toast.error('El nombre del activo es obligatorio y no puede estar vacío');
+      setIsLoading(false);
+      return;
+    }
+
     // Validate warranty dates
     if (!validateWarrantyDates()) {
       toast.error('La fecha de fin de garantía debe ser posterior a la fecha de inicio');
+      setIsLoading(false);
+      return;
+    }
+
+    // Validate for duplicates
+    const duplicateErrors = validateDuplicates();
+    if (duplicateErrors.length > 0) {
+      duplicateErrors.forEach(error => toast.error(error));
       setIsLoading(false);
       return;
     }
@@ -101,7 +156,15 @@ export const AgregarActivos = () => {
       }, 1500);
     } catch (error) {
       console.error('Error adding activo:', error);
-      toast.error('Error al agregar el activo: ' + (error.data?.message || error.message));
+      
+      // Handle specific database errors
+      if (error.data?.message?.includes('Duplicate entry') && error.data?.message?.includes('uq_activos_codigo')) {
+        toast.error(`El código "${formData.codigo_activo}" ya existe. Por favor, utilice un código único.`);
+      } else if (error.data?.message?.includes('Integrity constraint violation')) {
+        toast.error('Error de validación: Verifique que todos los campos requeridos estén completos y sean únicos.');
+      } else {
+        toast.error('Error al agregar el activo: ' + (error.data?.message || error.message));
+      }
     } finally {
       setIsLoading(false);
     }
@@ -129,6 +192,25 @@ export const AgregarActivos = () => {
                   
                   <Col md={6}>
                     <Form.Group className="mb-3">
+                      <Form.Label>Código del Activo *</Form.Label>
+                      <Form.Control
+                        type="text"
+                        name="codigo_activo"
+                        value={formData.codigo_activo}
+                        onChange={handleInputChange}
+                        placeholder="Ingrese el código del activo (ej: ACT-001)"
+                        required
+                        minLength={3}
+                        maxLength={50}
+                      />
+                      <Form.Control.Feedback type="invalid">
+                        El código del activo es obligatorio (3-50 caracteres).
+                      </Form.Control.Feedback>
+                    </Form.Group>
+                  </Col>
+
+                  <Col md={6}>
+                    <Form.Group className="mb-3">
                       <Form.Label>Nombre del Activo *</Form.Label>
                       <Form.Control
                         type="text"
@@ -141,6 +223,20 @@ export const AgregarActivos = () => {
                       <Form.Control.Feedback type="invalid">
                         Debe ingresar el nombre del Activo.
                       </Form.Control.Feedback>
+                    </Form.Group>
+                  </Col>
+
+                  <Col md={12}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Descripción</Form.Label>
+                      <Form.Control
+                        as="textarea"
+                        rows={3}
+                        name="descripcion"
+                        value={formData.descripcion}
+                        onChange={handleInputChange}
+                        placeholder="Descripción del activo"
+                      />
                     </Form.Group>
                   </Col>
 
@@ -232,6 +328,30 @@ export const AgregarActivos = () => {
                       </Form.Select>
                       <Form.Control.Feedback type="invalid">
                         Debe seleccionar un Estado.
+                      </Form.Control.Feedback>
+                    </Form.Group>
+                  </Col>
+
+                  <Col md={6}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Proveedor</Form.Label>
+                      <Form.Select
+
+                        name="id_proveedor"
+                        value={formData.id_proveedor}
+                        onChange={handleInputChange}
+                        disabled={loadingProveedores}
+                        required
+                      >
+                        <option value="">Seleccione un proveedor</option>
+                        {proveedores.map((proveedor) => (
+                          <option key={proveedor.id_proveedor} value={proveedor.id_proveedor}>
+                            {proveedor.nombre_proveedor}
+                          </option>
+                        ))}
+                      </Form.Select>
+                      <Form.Control.Feedback type="invalid">
+                        Debe seleccionar un Proveedor.
                       </Form.Control.Feedback>
                     </Form.Group>
                   </Col>
@@ -428,7 +548,7 @@ export const AgregarActivos = () => {
                       <Button 
                         variant="outline-secondary" 
                         type="button" 
-                        onClick={() => navigate('/activos')}
+                        onClick={() => navigate('/listaactivos')}
                         disabled={isLoading}
                       >
                         Cancelar

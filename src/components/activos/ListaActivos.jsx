@@ -1,4 +1,4 @@
-import { useGetActivosQuery } from "../../store/apis/activosApi";
+import { useGetActivosQuery, useDeleteActivoMutation } from "../../store/apis/activosApi";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import DataTable from "react-data-table-component";
@@ -6,6 +6,7 @@ import DataTable from "react-data-table-component";
 import './EstilosActivos.css';
 
 import { Col, Container, Row, Spinner, Form, Button, Badge } from "react-bootstrap";
+import { toast } from "react-toastify";
 
 
 // Estilos mínimos personalizados
@@ -19,10 +20,11 @@ const customStyles = {
 };
 
 export const ListaActivos = () => {
-  const { data: activos, error, isLoading } = useGetActivosQuery();
+  const { data: activos, error, isLoading, refetch } = useGetActivosQuery();
   
   const activosData = activos?.data || [];
 
+  const [eliminarActivo] = useDeleteActivoMutation();
 
   const navigate = useNavigate();
 
@@ -56,6 +58,7 @@ export const ListaActivos = () => {
     const matchesText = !filterText || (() => {
       const searchText = filterText.toLowerCase();
       return (
+        item.codigo_activo?.toLowerCase().includes(searchText) ||
         item.nombre_activo?.toLowerCase().includes(searchText) ||
         item.categoria?.toLowerCase().includes(searchText) ||
         item.marca?.toLowerCase().includes(searchText) ||
@@ -77,20 +80,34 @@ export const ListaActivos = () => {
   });
 
   // Function to handle asset deletion
-  const deleteRow = (id) => {
-    if (window.confirm('¿Está seguro de que desea eliminar este activo?')) {
-      // TODO: Implement delete functionality with API call
-      console.log('Deleting asset with ID:', id);
+  function deleteRow(id) {
+      const confirmDelete = window.confirm(
+        `¿Está seguro que desea eliminar el registro del Activo?.\n\nEsta acción no se puede deshacer.`
+      );
+      
+      if (!confirmDelete) {
+        return; // Exit if user cancels
+      }
+      eliminarActivo(id)
+        .unwrap()
+        .then(() => {
+          toast.error("Registro eliminado correctamente");
+          refetch();
+        })
+        .catch((error) => {
+          toast.error(`Error al eliminar el registro: ${error.message}`);
+        });
+  
+        
     }
-  };
 
   // Configuración de columnas para la tabla
   const columns = [
     {
-      name: "ID",
-      selector: row => row.id_activo,
+      name: "Cod Activo",
+      selector: row => row.codigo_activo,
       sortable: true,
-      width: "80px"
+      width: "100px"
     },
     {
       name: "Nombre",
@@ -115,7 +132,14 @@ export const ListaActivos = () => {
       name: "Modelo",
       selector: row => row.modelo,
       sortable: true,
-      width: "120px"
+      width: "200px"
+    },
+    //proveedor
+    {
+      name: "Proveedor",
+      selector: row => row.proveedor,
+      sortable: true,
+      width: "200px"
     },
     {
       name: "# de Serie",
@@ -149,7 +173,7 @@ export const ListaActivos = () => {
       name: "Ubicación",
       selector: row => row.ubicacion,
       sortable: true,
-      width: "200px"
+      width: "250px"
     },
     {
       name: "Fecha Registro",
@@ -191,7 +215,6 @@ export const ListaActivos = () => {
       ),
       width: "120px",
       ignoreRowClick: true,
-      button: true,
     },
   ];
 

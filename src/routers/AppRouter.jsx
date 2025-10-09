@@ -4,26 +4,29 @@ import { Login } from "../components/auth/Login"
 import { RegistroUsuario } from "../components/auth/RegistroUsuario"
 import { ListaActivos } from "../components/activos/ListaActivos"
 import { AgregarActivos } from "../components/activos/AgregarActivos"
+import { ActualizarActivos } from "../components/activos/ActualizarActivos"
 import { Footer } from "../components/Footer"
 
 
 
 export const AppRouter = () => {
   return (
-    <>
     <BrowserRouter>
-      <MainMenu />
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<RegistroUsuario />} />
-        <Route path="/agregaractivo" element={<AgregarActivos />} />
-        <Route path="/" element={<ListaActivos />} />
-        <Route path="/*" element={<Login />} />
-
-      </Routes>
-      <Footer />
-
+      <div className="d-flex flex-column min-vh-100">
+        <MainMenu />
+        <main className="flex-grow-1">
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<RegistroUsuario />} />
+            <Route path="/agregaractivo" element={<AgregarActivos />} />
+            <Route path="/" element={<ListaActivos />} />
+            <Route path="/listaactivos" element={<ListaActivos />} />
+            <Route path="/actualizaractivos/:id" element={<ActualizarActivos />} />
+            <Route path="/*" element={<Login />} />
+          </Routes>
+        </main>
+        <Footer />
+      </div>
     </BrowserRouter>
-    </>
-    )
+  )
 }
