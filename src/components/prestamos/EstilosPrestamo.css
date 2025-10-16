@@ -1,0 +1,78 @@
+/* Estilos para la tabla de préstamos */
+
+.prestamos-container {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+}
+
+
+/* Estilos para los badges de estado */
+
+.badge {
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+
+/* Estilos para filtros */
+
+.filter-section {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+
+/* Estilos para días vencidos */
+
+.text-danger {
+    color: #dc3545 !important;
+}
+
+.text-muted {
+    color: #6c757d !important;
+}
+
+
+/* Responsive adjustments */
+
+@media (max-width: 768px) {
+    .filter-section .row>div {
+        margin-bottom: 1rem;
+    }
+}
+
+
+/* Card styles */
+
+.card {
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+}
+
+.card-header {
+    color: white;
+    border-radius: 10px 10px 0 0 !important;
+    border: none;
+}
+
+.card-title {
+    font-weight: 600;
+    font-size: 1.25rem;
+    color: #ffffff;
+}
+
+
+/* Form controls */
+
+.form-control,
+.form-select {
+    border-radius: 8px;
+    padding: 10px 12px;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}

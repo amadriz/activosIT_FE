@@ -6,12 +6,14 @@ import { marcasApi } from './apis/marcasApi'
 import { proveedoresApi } from './apis/proveedoresApi'
 import { ubicacionesApi } from './apis/ubicacionesApi'
 import { categoriasApi } from './apis/categoriasApi'
+import { prestamosApi } from './apis/prestamosApi'
 
 export const store = configureStore({
   reducer: {
     
     [authApi.reducerPath]: authApi.reducer,
     [activosApi.reducerPath]: activosApi.reducer,
+    [prestamosApi.reducerPath]: prestamosApi.reducer,
     [estadosApi.reducerPath]: estadosApi.reducer,
     [marcasApi.reducerPath]: marcasApi.reducer,
     [proveedoresApi.reducerPath]: proveedoresApi.reducer,
@@ -27,7 +29,8 @@ export const store = configureStore({
       marcasApi.middleware,
       proveedoresApi.middleware,
       ubicacionesApi.middleware,
-      categoriasApi.middleware
+      categoriasApi.middleware,
+      prestamosApi.middleware
     ),
 
 })

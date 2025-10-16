@@ -78,6 +78,15 @@ button:not(.btn):not([class*="btn-"]):focus-visible {
     outline: 4px auto -webkit-focus-ring-color;
 }
 
+
+/* Estilos para la tabla */
+
+.rdt_TableHeadRow {
+    background-color: #495057 !important;
+    color: white !important;
+    margin-bottom: 5px;
+}
+
 @media (prefers-color-scheme: light) {
      :root {
         color: #213547;
