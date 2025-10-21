@@ -1,4 +1,4 @@
-import { useGetPrestamosQuery } from '../../store/apis/prestamosApi';
+import { useGetPrestamosQuery,useDeletePrestamoMutation } from '../../store/apis/prestamosApi';
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import DataTable from "react-data-table-component";
@@ -15,6 +15,8 @@ export const ListaPrestamos = () => {
   const { data: prestamos, error, isLoading, refetch } = useGetPrestamosQuery();
   
   const prestamosData = prestamos?.data || [];
+
+  const [eliminarPrestamo] = useDeletePrestamoMutation();
 
   const navigate = useNavigate();
 
@@ -68,6 +70,27 @@ export const ListaPrestamos = () => {
 
     return matchesText && matchesStatus && matchesVencimiento;
   });
+
+  function deleteRow(id) {
+        const confirmDelete = window.confirm(
+          `¿Está seguro que desea eliminar el registro del Préstamo?.\n\nEsta acción no se puede deshacer.`
+        );
+        
+        if (!confirmDelete) {
+          return; // Exit if user cancels
+        }
+        eliminarPrestamo(id)
+          .unwrap()
+          .then(() => {
+            toast.error("Registro eliminado correctamente");
+            refetch();
+          })
+          .catch((error) => {
+            toast.error(`Error al eliminar el registro: ${error.message}`);
+          });
+    
+          
+      }
 
   // Function to get badge variant based on status
   const getStatusBadge = (status) => {
@@ -177,22 +200,19 @@ export const ListaPrestamos = () => {
     },
     {
       name: "Tiempo Total",
-      selector: row => `${row.fecha_inicio_solicitada}-${row.fecha_fin_solicitada}`,
+      selector: row => row.duracion_planificada_horas,
       sortable: true,
       width: "110px",
       cell: row => {
-        const inicio = new Date(row.fecha_inicio_solicitada);
-        const fin = new Date(row.fecha_fin_solicitada);
-        const diffTime = fin - inicio;
-        const diffHours = Math.round(diffTime / (1000 * 60 * 60) * 10) / 10;
+        const horas = parseFloat(row.duracion_planificada_horas || 0);
         
-        if (diffHours >= 24) {
-          const days = Math.floor(diffHours / 24);
-          const hours = Math.round((diffHours % 24) * 10) / 10;
+        if (horas >= 24) {
+          const days = Math.floor(horas / 24);
+          const remainingHours = Math.round((horas % 24) * 10) / 10;
           return (
             <div className="text-center">
               <span className="badge bg-info">
-                {days}d {hours > 0 ? `${hours}h` : ''}
+                {days}d {remainingHours > 0 ? `${remainingHours}h` : ''}
               </span>
             </div>
           );
@@ -200,7 +220,7 @@ export const ListaPrestamos = () => {
           return (
             <div className="text-center">
               <span className="badge bg-primary">
-                {diffHours}h
+                {horas}h
               </span>
             </div>
           );
@@ -231,15 +251,19 @@ export const ListaPrestamos = () => {
       )
     },
     {
-      name: "Días",
-      selector: row => row.dias_transcurridos,
+      name: "Tiempo",
+      selector: row => row.tiempo_transcurrido,
       sortable: true,
-      width: "70px",
+      width: "90px",
       cell: row => (
-        <span className={row.dias_transcurridos > 0 ? 'text-danger fw-bold' : 'text-muted'}>
-          {row.dias_transcurridos}
-        </span>
-      )
+        <div className="text-center">
+          <small className="text-muted d-block">{row.tiempo_transcurrido || '-'}</small>
+          {row.tiempo_restante && (
+            <small className="text-info">{row.tiempo_restante}</small>
+          )}
+        </div>
+      ),
+      wrap: true
     },
     {
       name: "Aprobador",
@@ -309,7 +333,7 @@ export const ListaPrestamos = () => {
           <Button
             variant="outline-danger"
             size="sm"
-            onClick={() => deleteRow(row.id_activo)}
+            onClick={() => deleteRow(row.id_prestamo)}
             title="Eliminar"
           >
             🗑️

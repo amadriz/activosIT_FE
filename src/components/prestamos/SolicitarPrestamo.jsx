@@ -64,13 +64,24 @@ export const SolicitarPrestamo = () => {
       const fechaFin = new Date(formData.fecha_fin_solicitada);
       const ahora = new Date();
       
-      // Agregar un buffer de 1 minuto para evitar problemas de precisión
-      const ahoraConBuffer = new Date(ahora.getTime() - (1 * 60 * 1000)); // 1 minuto antes
-
-      // Validate that start date is not too far in the past (allow some buffer)
-      if (fechaInicio < ahoraConBuffer) {
-        toast.error('La fecha y hora de inicio no puede ser anterior al momento actual');
+      // Regla de negocio: Los préstamos pueden ser solicitados para el mismo día
+      // Obtener solo la fecha (sin hora) para comparar días
+      const fechaInicioSoloFecha = new Date(fechaInicio.getFullYear(), fechaInicio.getMonth(), fechaInicio.getDate());
+      const fechaActualSoloFecha = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate());
+      
+      // Permitir préstamos para el día actual o días futuros
+      if (fechaInicioSoloFecha < fechaActualSoloFecha) {
+        toast.error('La fecha de inicio no puede ser anterior al día de hoy');
         return false;
+      }
+      
+      // Si es el mismo día, validar que la hora no sea muy anterior (buffer de 30 minutos)
+      if (fechaInicioSoloFecha.getTime() === fechaActualSoloFecha.getTime()) {
+        const ahoraConBuffer = new Date(ahora.getTime() - (30 * 60 * 1000)); // 30 minutos antes
+        if (fechaInicio < ahoraConBuffer) {
+          toast.error('Para préstamos del mismo día, la hora de inicio debe ser al menos 30 minutos después de la hora actual');
+          return false;
+        }
       }
 
       // Validate that end time is after start time
@@ -88,9 +99,9 @@ export const SolicitarPrestamo = () => {
         return false;
       }
 
-      // Validate maximum loan period (adjust as needed - e.g., 7 days = 168 hours)
-      if (diffHours > 168) {
-        toast.error('El período de préstamo no puede exceder 7 días (168 horas)');
+      // Validate maximum loan period (no more than 1 day = 24 hours)
+      if (diffHours > 24) {
+        toast.error('El período de préstamo no puede exceder 1 día (24 horas)');
         return false;
       }
 
@@ -187,11 +198,12 @@ export const SolicitarPrestamo = () => {
   };
 
   // Get current datetime in YYYY-MM-DDTHH:MM format for min datetime validation
-  // Se resta 5 minutos para dar flexibilidad al usuario
+  // Permite préstamos del mismo día con 30 minutos de anticipación
   const getCurrentDateTime = () => {
     const now = new Date();
-    // Restar 5 minutos para dar flexibilidad
-    const adjustedTime = new Date(now.getTime() - (5 * 60 * 1000));
+    // Para permitir reservas del mismo día, usar la fecha actual sin restar tiempo
+    // Solo restar 30 minutos para dar un buffer mínimo
+    const adjustedTime = new Date(now.getTime() + (30 * 60 * 1000)); // 30 minutos después de ahora
     
     const year = adjustedTime.getFullYear();
     const month = String(adjustedTime.getMonth() + 1).padStart(2, '0');
@@ -341,37 +353,14 @@ export const SolicitarPrestamo = () => {
 
                   </Col>
 
-                  {/* Información del activo seleccionado */}
-                  {formData.id_activo && (
-                    <Col md={12}>
-                      <div className="alert alert-info">
-                        {(() => {
-                          const selectedAsset = getSelectedAssetInfo();
-                          return selectedAsset ? (
-                            <div>
-                              <strong>Información del Activo Seleccionado:</strong>
-                              <ul className="mb-0 mt-2">
-                                <li><strong>Nombre:</strong> {selectedAsset.nombre_activo}</li>
-                                <li><strong>Categoría:</strong> {selectedAsset.categoria}</li>
-                                <li><strong>Marca:</strong> {selectedAsset.marca}</li>
-                                <li><strong>Modelo:</strong> {selectedAsset.modelo}</li>
-                                <li><strong>Ubicación Actual:</strong> {selectedAsset.ubicacion}</li>
-                              </ul>
-                            </div>
-                          ) : null;
-                        })()}
-                      </div>
-                    </Col>
-                  )}
-
                   {/* Período del Préstamo */}
                   <Col md={12}>
                     <hr />
                     <h5 className="mb-3 text-primary">Horario del Préstamo</h5>
                     <div className="alert alert-info mb-3">
                       <small>
-                        <strong>📋 Información:</strong> Los préstamos pueden ser desde 1 hora hasta 7 días máximo. 
-                        Seleccione la fecha y hora exactas de inicio y fin del préstamo.
+                        <strong>📋 Información:</strong> Los préstamos pueden ser solicitados para el mismo día (con 30 minutos de anticipación). 
+                        Duración mínima: 1 hora, máxima: 1 día (24 horas).
                       </small>
                     </div>
                   </Col>
@@ -391,7 +380,7 @@ export const SolicitarPrestamo = () => {
                         Debe seleccionar la fecha y hora de inicio del préstamo.
                       </Form.Control.Feedback>
                       <Form.Text className="text-muted">
-                        No puede ser anterior al momento actual.
+                        Puede ser hoy (con 30 min de anticipación) o días futuros.
                       </Form.Text>
                     </Form.Group>
                   </Col>
@@ -411,7 +400,7 @@ export const SolicitarPrestamo = () => {
                         Debe seleccionar la fecha y hora de fin del préstamo.
                       </Form.Control.Feedback>
                       <Form.Text className="text-muted">
-                        Debe ser posterior al inicio. Mínimo 1 hora, máximo 7 días.
+                        Debe ser posterior al inicio. Mínimo 1 hora, máximo 1 día (24 horas).
                       </Form.Text>
                     </Form.Group>
                   </Col>
@@ -435,8 +424,8 @@ export const SolicitarPrestamo = () => {
                         {calculateDuration() < 1 && calculateDuration() > 0 && (
                           <span className="text-danger ms-2">⚠️ Mínimo 1 hora</span>
                         )}
-                        {calculateDuration() > 168 && (
-                          <span className="text-danger ms-2">⚠️ Máximo 7 días (168 horas)</span>
+                        {calculateDuration() > 24 && (
+                          <span className="text-danger ms-2">⚠️ Máximo 1 día (24 horas)</span>
                         )}
                       </div>
                     </Col>

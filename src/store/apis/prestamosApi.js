@@ -24,8 +24,16 @@ export const prestamosApi = createApi({
       providesTags: ['Prestamo'],
     }),
 
+    deletePrestamo: builder.mutation({
+        query: (id) => ({
+            url: `prestamos/eliminarPrestamo/${id}`,
+            method: 'DELETE',
+        }),
+        invalidatesTags: ['Prestamo'],
+    }),
+
 
   }),
 });
 
-export const { useGetPrestamosQuery, useAddPrestamoMutation, useGetEstadoPrestamosQuery } = prestamosApi;
+export const { useGetPrestamosQuery, useAddPrestamoMutation, useGetEstadoPrestamosQuery, useDeletePrestamoMutation } = prestamosApi;
