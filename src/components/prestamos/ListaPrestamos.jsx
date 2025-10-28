@@ -95,12 +95,11 @@ export const ListaPrestamos = () => {
   // Function to get badge variant based on status
   const getStatusBadge = (status) => {
     switch(status?.toLowerCase()) {
+      case 'solicitado': return 'warning';
       case 'aprobado': return 'success';
-      case 'solicitado': return 'primary';
-      case 'pendiente': return 'warning';
-      case 'rechazado': return 'danger';
       case 'entregado': return 'info';
       case 'devuelto': return 'secondary';
+      case 'rechazado': return 'danger';
       default: return 'light';
     }
   };
@@ -321,7 +320,27 @@ export const ListaPrestamos = () => {
     {
       name: "Acciones",
       cell: (row) => (
-        <div className="d-flex gap-2">
+        <div className="d-flex gap-1">
+          {row.estado_prestamo === 'Solicitado' && (
+            <Button
+              variant="success"
+              size="sm"
+              onClick={() => { navigate(`/aprobarprestamo/${row.id_prestamo}`); }}
+              title="Aprobar/Rechazar"
+            >
+              <i className="fas fa-check-circle"></i>
+            </Button>
+          )}
+          {row.estado_prestamo === 'Aprobado' && (
+            <Button
+              variant="info"
+              size="sm"
+              onClick={() => { navigate(`/entregarprestamo/${row.id_prestamo}`); }}
+              title="Entregar Préstamo"
+            >
+              <i className="fas fa-handshake"></i>
+            </Button>
+          )}
           <Button
             variant="outline-primary"
             size="sm"
@@ -340,7 +359,7 @@ export const ListaPrestamos = () => {
           </Button>
         </div>
       ),
-      width: "120px",
+      width: "180px",
       ignoreRowClick: true,
     },
   ];
@@ -482,14 +501,32 @@ export const ListaPrestamos = () => {
       
       <Row className="mt-3">
         <Col className="text-center">
-          <Button
-            variant="success"
-            size="lg"
-            onClick={() => { navigate('/solicitarprestamo'); }}
-            className="d-inline-flex align-items-center justify-content-center"
-          >
-            <i className="bi bi-plus-lg me-2"></i> Nuevo Préstamo
-          </Button>
+          <div className="d-flex gap-3 justify-content-center">
+            <Button
+              variant="success"
+              size="lg"
+              onClick={() => { navigate('/solicitarprestamo'); }}
+              className="d-inline-flex align-items-center justify-content-center"
+            >
+              <i className="bi bi-plus-lg me-2"></i> Nuevo Préstamo
+            </Button>
+            
+            <Button
+              variant={statusFilter === 'Solicitado' ? 'primary' : 'danger'}
+              size="lg"
+              onClick={() => {
+                if (statusFilter === 'Solicitado') {
+                  setStatusFilter('');
+                } else {
+                  setStatusFilter('Solicitado');
+                }
+              }}
+              className="d-inline-flex align-items-center justify-content-center"
+            >
+              <i className="fas fa-clock me-2"></i>
+              {statusFilter === 'Solicitado' ? 'Ver Todos' : 'Solicitudes Pendientes'}
+            </Button>
+          </div>
         </Col>
       </Row>
     </Container>

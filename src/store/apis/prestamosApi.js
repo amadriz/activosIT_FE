@@ -32,8 +32,32 @@ export const prestamosApi = createApi({
         invalidatesTags: ['Prestamo'],
     }),
 
+    aprobarPrestamo: builder.mutation({
+        query: ({ id_prestamo, accion, usuario_aprobador, observaciones }) => ({
+            url: `prestamos/aprobarPrestamo/${id_prestamo}`,
+            method: 'PUT',
+            body: {
+                accion,
+                usuario_aprobador,
+                observaciones
+            },
+        }),
+        invalidatesTags: ['Prestamo'],
+    }),
+
+    entregarPrestamo: builder.mutation({
+        query: ({ id_prestamo, usuario_entregador, observaciones }) => ({
+            url: `prestamos/entregarPrestamo/${id_prestamo}`,
+            method: 'PUT',
+            body: {
+                usuario_entregador,
+                observaciones
+            },
+        }),
+        invalidatesTags: ['Prestamo'],
+    }),
 
   }),
 });
 
-export const { useGetPrestamosQuery, useAddPrestamoMutation, useGetEstadoPrestamosQuery, useDeletePrestamoMutation } = prestamosApi;
+export const { useGetPrestamosQuery, useAddPrestamoMutation, useGetEstadoPrestamosQuery, useDeletePrestamoMutation, useAprobarPrestamoMutation, useEntregarPrestamoMutation } = prestamosApi;
