@@ -2,6 +2,7 @@ import { useGetPrestamosQuery,useDeletePrestamoMutation } from '../../store/apis
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import DataTable from "react-data-table-component";
+import { useAuth } from '../hooks/useAuth';
 
 import './EstilosPrestamo.css';
 
@@ -19,6 +20,7 @@ export const ListaPrestamos = () => {
   const [eliminarPrestamo] = useDeletePrestamoMutation();
 
   const navigate = useNavigate();
+  const { isAdmin } = useAuth();
 
   //Filtros busqueda
   const [filterText, setFilterText] = useState("");
@@ -44,7 +46,7 @@ export const ListaPrestamos = () => {
   const uniqueStatuses = [...new Set(prestamosData.map(item => item.estado_prestamo).filter(Boolean))];
   const uniqueVencimientos = [...new Set(prestamosData.map(item => item.estado_vencimiento).filter(Boolean))];
 
-  // Filter the data based on search text, status, and vencimiento
+  // Filter the data based on search text, status
   const filteredData = prestamosData.filter(item => {
     // Text filter
     const matchesText = !filterText || (() => {
@@ -104,15 +106,6 @@ export const ListaPrestamos = () => {
     }
   };
 
-  // Function to get badge variant based on vencimiento
-  const getVencimientoBadge = (estado) => {
-    switch(estado?.toLowerCase()) {
-      case 'ok': return 'success';
-      case 'vencido': return 'danger';
-      case 'por vencer': return 'warning';
-      default: return 'light';
-    }
-  };
 
   // Configuración de columnas para la tabla
   const columns = [
@@ -205,25 +198,13 @@ export const ListaPrestamos = () => {
       cell: row => {
         const horas = parseFloat(row.duracion_planificada_horas || 0);
         
-        if (horas >= 24) {
-          const days = Math.floor(horas / 24);
-          const remainingHours = Math.round((horas % 24) * 10) / 10;
-          return (
-            <div className="text-center">
-              <span className="badge bg-info">
-                {days}d {remainingHours > 0 ? `${remainingHours}h` : ''}
-              </span>
-            </div>
-          );
-        } else {
-          return (
-            <div className="text-center">
-              <span className="badge bg-primary">
-                {horas}h
-              </span>
-            </div>
-          );
-        }
+        return (
+          <div className="text-center">
+            <span className="badge bg-primary">
+              {horas}h
+            </span>
+          </div>
+        );
       },
       wrap: true
     },
@@ -238,32 +219,24 @@ export const ListaPrestamos = () => {
         </Badge>
       )
     },
-    {
-      name: "Vencimiento",
-      selector: row => row.estado_vencimiento,
-      sortable: true,
-      width: "110px",
-      cell: row => (
-        <Badge bg={getVencimientoBadge(row.estado_vencimiento)}>
-          {row.estado_vencimiento}
-        </Badge>
-      )
-    },
-    {
-      name: "Tiempo",
-      selector: row => row.tiempo_transcurrido,
-      sortable: true,
-      width: "90px",
-      cell: row => (
-        <div className="text-center">
-          <small className="text-muted d-block">{row.tiempo_transcurrido || '-'}</small>
-          {row.tiempo_restante && (
-            <small className="text-info">{row.tiempo_restante}</small>
-          )}
-        </div>
-      ),
-      wrap: true
-    },
+    // {
+    //   name: "Tiempo",
+    //   selector: row => row.tiempo_transcurrido,
+    //   sortable: true,
+    //   width: "90px",
+    //   cell: row => {
+    //     // Extraer solo el número de horas del tiempo transcurrido
+    //     const tiempoTranscurrido = row.tiempo_transcurrido || '';
+    //     const horasTranscurridas = tiempoTranscurrido.match(/(\d+(?:\.\d+)?)\s*h/)?.[1] || '0';
+        
+    //     return (
+    //       <div className="text-center">
+    //         <small className="text-muted">{horasTranscurridas ? `${horasTranscurridas}h` : '-'}</small>
+    //       </div>
+    //     );
+    //   },
+    //   wrap: true
+    // },
     {
       name: "Aprobador",
       selector: row => row.usuario_aprobador,
@@ -321,7 +294,8 @@ export const ListaPrestamos = () => {
       name: "Acciones",
       cell: (row) => (
         <div className="d-flex gap-1">
-          {row.estado_prestamo === 'Solicitado' && (
+          {/* Botones solo para administradores */}
+          {isAdmin && row.estado_prestamo === 'Solicitado' && (
             <Button
               variant="success"
               size="sm"
@@ -331,7 +305,7 @@ export const ListaPrestamos = () => {
               <i className="fas fa-check-circle"></i>
             </Button>
           )}
-          {row.estado_prestamo === 'Aprobado' && (
+          {isAdmin && row.estado_prestamo === 'Aprobado' && (
             <Button
               variant="info"
               size="sm"
@@ -341,23 +315,39 @@ export const ListaPrestamos = () => {
               <i className="fas fa-handshake"></i>
             </Button>
           )}
-          <Button
-            variant="outline-primary"
-            size="sm"
-            onClick={() => { navigate(`/actualizaractivos/${row.id_activo}`); }}
-            title="Editar"
-          >
-            ✏️
-          </Button>
-          <Button
-            variant="outline-danger"
-            size="sm"
-            onClick={() => deleteRow(row.id_prestamo)}
-            title="Eliminar"
-          >
-            🗑️
-          </Button>
-        </div>
+          {isAdmin && row.estado_prestamo === 'Entregado' && (
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => { navigate(`/devolverprestamo/${row.id_prestamo}`); }}
+              title="Devolver Préstamo"
+            >
+              <i className="fas fa-undo"></i>
+            </Button>
+          )}
+          
+          {/* Botones administrativos solo para admins */}
+          {/* {isAdmin && (
+            <>
+              <Button
+                variant="outline-primary"
+                size="sm"
+                onClick={() => { navigate(`/actualizaractivos/${row.id_activo}`); }}
+                title="Editar Activo"
+              >
+                ✏️
+              </Button>
+              <Button
+                variant="outline-danger"
+                size="sm"
+                onClick={() => deleteRow(row.id_prestamo)}
+                title="Eliminar Préstamo"
+              >
+                🗑️
+              </Button>
+            </>
+          )} */}
+          </div>
       ),
       width: "180px",
       ignoreRowClick: true,
@@ -385,6 +375,21 @@ export const ListaPrestamos = () => {
 
   return (
     <Container fluid className="mt-5">
+      {/* Banner informativo para usuarios no administradores */}
+      {!isAdmin && (
+        <Row className="mb-3">
+          <Col xs={12}>
+            <div className="alert alert-info d-flex align-items-center">
+              <i className="fas fa-info-circle me-2"></i>
+              <div>
+                <strong>Modo Usuario:</strong> Puedes ver todos los préstamos y solicitar nuevos préstamos. 
+                Las funciones administrativas (aprobar, entregar, editar) están disponibles solo para administradores.
+              </div>
+            </div>
+          </Col>
+        </Row>
+      )}
+
       <Row className="mb-4">
         <Col xs={12}>
           <div className="bg-light p-3 rounded shadow-sm">
@@ -421,24 +426,7 @@ export const ListaPrestamos = () => {
                     ))}
                   </Form.Select>
                 </Col>
-                <Col lg={2} md={3} sm={12}>
-                  <Form.Label className="fw-semibold text-muted mb-2">
-                    <i className="bi bi-clock me-2"></i>Vencimiento
-                  </Form.Label>
-                  <Form.Select
-                    aria-label="Filtrar por vencimiento"
-                    value={vencimientoFilter}
-                    onChange={handleVencimientoFilterChange}
-                    className="border-0 shadow-sm"
-                  >
-                    <option value="">Todos</option>
-                    {uniqueVencimientos.map((vencimiento, index) => (
-                      <option key={index} value={vencimiento}>
-                        {vencimiento}
-                      </option>
-                    ))}
-                  </Form.Select>
-                </Col>
+                
                 <Col lg={2} md={6} sm={12}>
                   <Button
                     variant="outline-secondary"

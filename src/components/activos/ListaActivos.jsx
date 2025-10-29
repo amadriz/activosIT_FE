@@ -91,11 +91,11 @@ export const ListaActivos = () => {
       eliminarActivo(id)
         .unwrap()
         .then(() => {
-          toast.error("Registro eliminado correctamente");
+          toast.success("Activo eliminado correctamente");
           refetch();
         })
         .catch((error) => {
-          toast.error(`Error al eliminar el registro: ${error.message}`);
+          toast.error(`Error al eliminar el activo: ${error.message}`);
         });
   
         

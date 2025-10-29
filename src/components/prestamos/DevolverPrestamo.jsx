@@ -2,22 +2,22 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Container, Row, Col, Card, Button, Form, Badge, Spinner, Alert } from 'react-bootstrap';
 import { toast } from 'react-toastify';
-import { useGetPrestamosQuery, useAprobarPrestamoMutation } from '../../store/apis/prestamosApi';
+import { useGetPrestamosQuery, useDevolverPrestamoMutation } from '../../store/apis/prestamosApi';
 import { useGetUsuariosQuery } from '../../store/apis/authApi';
 import './EstilosPrestamo.css';
 
-export const AprobarPrestamo = () => {
+export const DevolverPrestamo = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   
   const { data: prestamos, isLoading: loadingPrestamos } = useGetPrestamosQuery();
   const { data: usuarios, isLoading: loadingUsuarios } = useGetUsuariosQuery();
-  const [aprobarRechazarPrestamo, { isLoading: processingApproval }] = useAprobarPrestamoMutation();
+  const [devolverPrestamo, { isLoading: processingReturn }] = useDevolverPrestamoMutation();
 
   const [prestamo, setPrestamo] = useState(null);
   const [observaciones, setObservaciones] = useState('');
-  const [usuarioAprobador, setUsuarioAprobador] = useState('');
-  const [accionSeleccionada, setAccionSeleccionada] = useState(null);
+  const [usuarioRecibe, setUsuarioRecibe] = useState('');
+  const [calificacion, setCalificacion] = useState('');
   const [showConfirmation, setShowConfirmation] = useState(false);
 
   useEffect(() => {
@@ -54,9 +54,27 @@ export const AprobarPrestamo = () => {
     return <Badge bg={config.bg} text={config.text}>{estado}</Badge>;
   };
 
-  const handleAccion = (accion) => {
-    if (!usuarioAprobador || usuarioAprobador.trim() === '') {
-      toast.error('Debe seleccionar un usuario aprobador');
+  const getCalificacionStars = (rating) => {
+    const stars = [];
+    for (let i = 1; i <= 5; i++) {
+      stars.push(
+        <i 
+          key={i} 
+          className={`fas fa-star ${i <= rating ? 'text-warning' : 'text-muted'}`}
+        ></i>
+      );
+    }
+    return stars;
+  };
+
+  const handleDevolver = () => {
+    if (!usuarioRecibe || usuarioRecibe.trim() === '') {
+      toast.error('Debe seleccionar un usuario para recibir la devolución');
+      return;
+    }
+
+    if (!calificacion || calificacion === '') {
+      toast.error('Debe seleccionar una calificación');
       return;
     }
 
@@ -65,7 +83,7 @@ export const AprobarPrestamo = () => {
       if (!u) return false;
       const userId = u.id_usuario || u.id;
       if (!userId) return false;
-      return String(userId) === String(usuarioAprobador);
+      return String(userId) === String(usuarioRecibe);
     });
     
     if (!usuario) {
@@ -73,34 +91,38 @@ export const AprobarPrestamo = () => {
       return;
     }
 
-    setAccionSeleccionada(accion);
     setShowConfirmation(true);
   };
 
-  const confirmarAccion = async () => {
+  const confirmarDevolucion = async () => {
     try {
-      // Validar que el usuario aprobador sea un ID válido
-      const usuarioAprobadorId = parseInt(usuarioAprobador);
-      if (!usuarioAprobadorId || isNaN(usuarioAprobadorId)) {
-        toast.error('Debe seleccionar un usuario aprobador válido');
+      // Validar que el usuario recibe sea un ID válido
+      const usuarioRecibeId = parseInt(usuarioRecibe);
+      if (!usuarioRecibeId || isNaN(usuarioRecibeId)) {
+        toast.error('Debe seleccionar un usuario válido para recibir la devolución');
         return;
       }
 
-      const resultado = await aprobarRechazarPrestamo({
+      const calificacionInt = parseInt(calificacion);
+      if (!calificacionInt || isNaN(calificacionInt) || calificacionInt < 1 || calificacionInt > 5) {
+        toast.error('Debe seleccionar una calificación válida (1-5)');
+        return;
+      }
+
+      const resultado = await devolverPrestamo({
         id_prestamo: prestamo.id_prestamo,
-        accion: accionSeleccionada,
-        usuario_aprobador: usuarioAprobadorId,
+        usuario_recibe: usuarioRecibeId,
+        calificacion: calificacionInt,
         observaciones: observaciones.trim() || null
       }).unwrap();
 
-      toast.success(`Préstamo ${accionSeleccionada === 'aprobar' ? 'aprobado' : 'rechazado'} exitosamente`);
+      toast.success('Préstamo devuelto exitosamente');
       navigate('/prestamos');
     } catch (error) {
-      console.error('Error al procesar:', error);
-      toast.error(`Error al ${accionSeleccionada === 'aprobar' ? 'aprobar' : 'rechazar'} el préstamo`);
+      console.error('Error al devolver:', error);
+      toast.error('Error al registrar la devolución del préstamo');
     } finally {
       setShowConfirmation(false);
-      setAccionSeleccionada(null);
     }
   };
 
@@ -125,7 +147,7 @@ export const AprobarPrestamo = () => {
             <Alert variant="warning">
               <Alert.Heading>Préstamo no encontrado</Alert.Heading>
               <p>No se pudo encontrar el préstamo con ID: {id}</p>
-              <Button variant="primary" onClick={() => navigate('/prestamos')}>
+              <Button variant="outline-primary" onClick={() => navigate('/prestamos')}>
                 Volver a la lista
               </Button>
             </Alert>
@@ -135,17 +157,17 @@ export const AprobarPrestamo = () => {
     );
   }
 
-  const isSolicitado = prestamo.estado_prestamo === 'Solicitado';
+  const isEntregado = prestamo.estado_prestamo === 'Entregado';
 
   return (
     <Container className="mt-4 aprobacion-container">
       <Row className="justify-content-center">
         <Col lg={10}>
-          <Card className="aprobacion-card">
-            <Card.Header className="bg-primary text-white">
+          <Card className="devolucion-card">
+            <Card.Header className="bg-secondary text-white">
               <h4 className="mb-0">
-                <i className="fas fa-check-circle me-2"></i>
-                Aprobar/Rechazar Préstamo #{prestamo.id_prestamo}
+                <i className="fas fa-undo me-2"></i>
+                Devolver Préstamo #{prestamo.id_prestamo}
               </h4>
             </Card.Header>
             <Card.Body>
@@ -163,13 +185,15 @@ export const AprobarPrestamo = () => {
                       <p><strong>Estado Actual:</strong> {getEstadoBadge(prestamo.estado_prestamo)}</p>
                       <p><strong>Usuario Solicitante:</strong> {prestamo.solicitante}</p>
                       <p><strong>Fecha de Solicitud:</strong> {formatDateTime(prestamo.fecha_solicitud)}</p>
-                      <p><strong>Fecha Inicio Solicitada:</strong> {formatDateTime(prestamo.fecha_inicio_solicitada)}</p>
-                      <p><strong>Fecha Fin Solicitada:</strong> {formatDateTime(prestamo.fecha_fin_solicitada)}</p>
+                      <p><strong>Fecha de Aprobación:</strong> {formatDateTime(prestamo.fecha_aprobacion)}</p>
+                      <p><strong>Fecha de Entrega:</strong> {formatDateTime(prestamo.fecha_entrega)}</p>
+                      <p><strong>Usuario Aprobador:</strong> {prestamo.usuario_aprobador}</p>
+                      <p><strong>Usuario que Entregó:</strong> {prestamo.usuario_entrega || 'No especificado'}</p>
                       <p><strong>Propósito:</strong> {prestamo.proposito}</p>
                       <p><strong>Duración Planificada:</strong> {prestamo.duracion_planificada_horas} horas</p>
                       
                       {prestamo.observaciones_aprobacion && (
-                        <p><strong>Observaciones:</strong> {prestamo.observaciones_aprobacion}</p>
+                        <p><strong>Observaciones de Aprobación:</strong> {prestamo.observaciones_aprobacion}</p>
                       )}
                     </Card.Body>
                   </Card>
@@ -194,58 +218,87 @@ export const AprobarPrestamo = () => {
                 </Col>
               </Row>
 
-              {/* Formulario de aprobación/rechazo */}
-              {isSolicitado && (
-                <Card className="mt-3 proceso-aprobacion-card">
+              {/* Formulario de devolución */}
+              {isEntregado && (
+                <Card className="mt-3 proceso-devolucion-card">
                   <Card.Header>
                     <h6 className="mb-0">
-                      <i className="fas fa-user-check me-2"></i>
-                      Proceso de Aprobación
+                      <i className="fas fa-clipboard-check me-2"></i>
+                      Proceso de Devolución
                     </h6>
                   </Card.Header>
                   <Card.Body>
                     <Row>
-                      <Col md={6}>
+                      <Col md={4}>
                         <Form.Group className="mb-3">
                           <Form.Label>
-                            <strong>Usuario Aprobador *</strong>
+                            <strong>Usuario que Recibe *</strong>
                           </Form.Label>
                           <Form.Select
-                            value={usuarioAprobador}
-                            onChange={(e) => setUsuarioAprobador(e.target.value)}
+                            value={usuarioRecibe}
+                            onChange={(e) => setUsuarioRecibe(e.target.value)}
                             required
                           >
-                            <option value="">Seleccione un administrador</option>
+                            <option value="">Seleccione el usuario responsable</option>
                             {(() => {
                               if (!usuarios?.data) return null;
                               
-                              const adminUsers = usuarios.data.filter(usuario => {
+                              const staffUsers = usuarios.data.filter(usuario => {
                                 if (!usuario) return false;
-                                return usuario.rol === "admin";
-                                       
+                                return usuario.rol === "Administrador" || 
+                                       usuario.rol === "Admin" || 
+                                       usuario.rol === "admin" ||
+                                       usuario.rol === "Técnico" ||
+                                       usuario.rol === "tecnico";
                               });
                               
-                              return adminUsers.map((usuario, index) => (
-                                <option key={`admin-${usuario.id_usuario || usuario.id || index}`} value={usuario.id_usuario || usuario.id}>
-                                  {usuario.nombre} {usuario.apellidos} - {usuario.email}
+                              return staffUsers.map((usuario, index) => (
+                                <option key={`staff-${usuario.id_usuario || usuario.id || index}`} value={usuario.id_usuario || usuario.id}>
+                                  {usuario.nombre} {usuario.apellidos} - {usuario.rol}
                                 </option>
                               ));
                             })()}
                           </Form.Select>
+                          <Form.Text className="text-muted">
+                            Seleccione el administrador o técnico que recibe el equipo devuelto
+                          </Form.Text>
                         </Form.Group>
                       </Col>
 
-                      <Col md={6}>
+                      <Col md={4}>
                         <Form.Group className="mb-3">
                           <Form.Label>
-                            <strong>Observaciones (Opcional)</strong>
+                            <strong>Calificación del Préstamo *</strong>
+                          </Form.Label>
+                          <Form.Select
+                            value={calificacion}
+                            onChange={(e) => setCalificacion(e.target.value)}
+                            required
+                          >
+                            <option value="">Seleccione una calificación</option>
+                            <option value="5">⭐⭐⭐⭐⭐ Excelente (5)</option>
+                            <option value="4">⭐⭐⭐⭐ Muy Bueno (4)</option>
+                            <option value="3">⭐⭐⭐ Bueno (3)</option>
+                            <option value="2">⭐⭐ Regular (2)</option>
+                            <option value="1">⭐ Malo (1)</option>
+                          </Form.Select>
+                          <Form.Text className="text-muted">
+                            Califique el estado en que se devolvió el equipo y el cumplimiento del préstamo
+                          </Form.Text>
+                        </Form.Group>
+                      </Col>
+
+                      <Col md={4}>
+                        <Form.Group className="mb-3">
+                          <Form.Label>
+                            <strong>Observaciones de Devolución</strong>
                           </Form.Label>
                           <Form.Control
                             as="textarea"
                             rows={3}
                             value={observaciones}
                             onChange={(e) => setObservaciones(e.target.value)}
-                            placeholder="Ingrese observaciones sobre la aprobación o rechazo..."
+                            placeholder="Describa el estado del equipo devuelto, daños, accesorios, limpieza, etc..."
                             maxLength={500}
                           />
                           <Form.Text className="text-muted">
@@ -257,30 +310,20 @@ export const AprobarPrestamo = () => {
 
                     <div className="d-flex gap-3 justify-content-center mt-4">
                       <Button
-                        className="btn-aprobar"
+                        className="btn-devolver"
                         size="lg"
-                        onClick={() => handleAccion('aprobar')}
-                        disabled={processingApproval}
+                        onClick={handleDevolver}
+                        disabled={processingReturn}
                       >
-                        <i className="fas fa-check me-2"></i>
-                        Aprobar Préstamo
-                      </Button>
-
-                      <Button
-                        className="btn-rechazar"
-                        size="lg"
-                        onClick={() => handleAccion('rechazar')}
-                        disabled={processingApproval}
-                      >
-                        <i className="fas fa-times me-2"></i>
-                        Rechazar Préstamo
+                        <i className="fas fa-undo me-2"></i>
+                        Confirmar Devolución
                       </Button>
 
                       <Button
                         variant="outline-secondary"
                         size="lg"
                         onClick={() => navigate('/prestamos')}
-                        disabled={processingApproval}
+                        disabled={processingReturn}
                       >
                         <i className="fas fa-arrow-left me-2"></i>
                         Cancelar
@@ -290,19 +333,35 @@ export const AprobarPrestamo = () => {
                 </Card>
               )}
 
-              {/* Mensaje si ya fue procesado */}
-              {!isSolicitado && (
+              {/* Mensaje si no está entregado o ya fue devuelto */}
+              {!isEntregado && (
                 <div className="status-processed mt-3">
-                  <h5><i className="fas fa-info-circle me-2"></i>Préstamo ya procesado</h5>
-                  <p>Este préstamo ya ha sido {prestamo.estado_prestamo.toLowerCase()}.</p>
-                  {prestamo.fecha_aprobacion && (
-                    <p><strong>Fecha de procesamiento:</strong> {formatDateTime(prestamo.fecha_aprobacion)}</p>
+                  <h5><i className="fas fa-info-circle me-2"></i>Préstamo no disponible para devolución</h5>
+                  {prestamo.estado_prestamo === 'Solicitado' && (
+                    <p>Este préstamo aún está pendiente de aprobación.</p>
                   )}
-                  {prestamo.usuario_aprobador && (
-                    <p><strong>Procesado por:</strong> {prestamo.usuario_aprobador}</p>
+                  {prestamo.estado_prestamo === 'Aprobado' && (
+                    <p>Este préstamo aún no ha sido entregado.</p>
                   )}
-                  {prestamo.observaciones_aprobacion && (
-                    <p><strong>Observaciones:</strong> {prestamo.observaciones_aprobacion}</p>
+                  {prestamo.estado_prestamo === 'Devuelto' && (
+                    <>
+                      <p>Este préstamo ya ha sido devuelto.</p>
+                      {prestamo.fecha_devolucion && (
+                        <p><strong>Fecha de devolución:</strong> {formatDateTime(prestamo.fecha_devolucion)}</p>
+                      )}
+                      {prestamo.usuario_recibe && (
+                        <p><strong>Recibido por:</strong> {prestamo.usuario_recibe}</p>
+                      )}
+                      {prestamo.calificacion_prestamo && (
+                        <p><strong>Calificación:</strong> {getCalificacionStars(prestamo.calificacion_prestamo)}</p>
+                      )}
+                      {prestamo.observaciones_devolucion && (
+                        <p><strong>Observaciones:</strong> {prestamo.observaciones_devolucion}</p>
+                      )}
+                    </>
+                  )}
+                  {prestamo.estado_prestamo === 'Rechazado' && (
+                    <p>Este préstamo fue rechazado y no puede ser devuelto.</p>
                   )}
                   <Button variant="outline-light" onClick={() => navigate('/prestamos')}>
                     <i className="fas fa-arrow-left me-2"></i>
@@ -318,52 +377,56 @@ export const AprobarPrestamo = () => {
                     <div className="modal-content">
                       <div className="modal-header">
                         <h5 className="modal-title">
-                          Confirmar {accionSeleccionada === 'aprobar' ? 'Aprobación' : 'Rechazo'}
+                          Confirmar Devolución del Préstamo
                         </h5>
                       </div>
                       <div className="modal-body">
                         <p>
-                          ¿Está seguro que desea <strong>
-                            {accionSeleccionada === 'aprobar' ? 'aprobar' : 'rechazar'}
-                          </strong> este préstamo?
+                          ¿Está seguro que desea <strong>confirmar la devolución</strong> de este préstamo?
                         </p>
                         <p><strong>Préstamo:</strong> {prestamo.nombre_activo} (#{prestamo.id_prestamo})</p>
-                        <p><strong>Usuario Aprobador:</strong> {(() => {
+                        <p><strong>Usuario que Recibe:</strong> {(() => {
                           const usuario = usuarios?.data?.find(u => {
                             if (!u) return false;
                             const userId = u.id_usuario || u.id;
-                            return userId && String(userId) === String(usuarioAprobador);
+                            return userId && String(userId) === String(usuarioRecibe);
                           });
                           return usuario ? `${usuario.nombre || ''} ${usuario.apellidos || ''}`.trim() : 'No seleccionado';
                         })()}</p>
+                        <p><strong>Devuelto por:</strong> {prestamo.solicitante}</p>
+                        <p><strong>Calificación:</strong> {getCalificacionStars(parseInt(calificacion))}</p>
                         {observaciones.trim() && (
                           <p><strong>Observaciones:</strong> {observaciones}</p>
                         )}
+                        <div className="alert alert-warning mt-3">
+                          <small>
+                            <i className="fas fa-info-circle me-1"></i>
+                            Una vez confirmada la devolución, el estado del préstamo cambiará a "Devuelto" y se registrará la fecha/hora actual.
+                          </small>
+                        </div>
                       </div>
                       <div className="modal-footer">
                         <Button
                           variant="secondary"
-                          onClick={() => {
-                            setShowConfirmation(false);
-                            setAccionSeleccionada(null);
-                          }}
-                          disabled={processingApproval}
+                          onClick={() => setShowConfirmation(false)}
+                          disabled={processingReturn}
                         >
                           Cancelar
                         </Button>
                         <Button
-                          variant={accionSeleccionada === 'aprobar' ? 'success' : 'danger'}
-                          onClick={confirmarAccion}
-                          disabled={processingApproval}
+                          variant="secondary"
+                          onClick={confirmarDevolucion}
+                          disabled={processingReturn}
                         >
-                          {processingApproval ? (
+                          {processingReturn ? (
                             <>
                               <Spinner animation="border" size="sm" className="me-2" />
                               Procesando...
                             </>
                           ) : (
                             <>
-                              Confirmar {accionSeleccionada === 'aprobar' ? 'Aprobación' : 'Rechazo'}
+                              <i className="fas fa-undo me-2"></i>
+                              Confirmar Devolución
                             </>
                           )}
                         </Button>

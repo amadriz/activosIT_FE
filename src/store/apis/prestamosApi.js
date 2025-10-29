@@ -57,7 +57,20 @@ export const prestamosApi = createApi({
         invalidatesTags: ['Prestamo'],
     }),
 
+    devolverPrestamo: builder.mutation({
+        query: ({ id_prestamo, usuario_recibe, observaciones, calificacion }) => ({
+            url: `prestamos/devolverPrestamo/${id_prestamo}`,
+            method: 'PUT',
+            body: {
+                usuario_recibe,
+                calificacion,
+                observaciones
+            },
+        }),
+        invalidatesTags: ['Prestamo'],
+    }),
+
   }),
 });
 
-export const { useGetPrestamosQuery, useAddPrestamoMutation, useGetEstadoPrestamosQuery, useDeletePrestamoMutation, useAprobarPrestamoMutation, useEntregarPrestamoMutation } = prestamosApi;
+export const { useGetPrestamosQuery, useAddPrestamoMutation, useGetEstadoPrestamosQuery, useDeletePrestamoMutation, useAprobarPrestamoMutation, useEntregarPrestamoMutation, useDevolverPrestamoMutation } = prestamosApi;

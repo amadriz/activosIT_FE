@@ -65,42 +65,24 @@ export const Login = () => {
       // mutation result or throws an error if the mutation was unsuccessful.
       const result = await login(loginData).unwrap();     
 
+      console.log("Login result:", result); // Debug log
      
-     const authToken =  result.auth?.authToken;
-     const email = result.auth?.email;
-     const rol = result.auth?.rol;
+     const authToken = result.auth?.authToken;
+     const userData = result.auth || {};
 
-     // Save the token and user data in the session storage - only if they exist
-     sessionStorage.setItem("token", authToken);
-     sessionStorage.setItem("email", email);
-     
-     // Only store role if it's not undefined
-     if (rol !== undefined && rol !== null) {
-       sessionStorage.setItem("rol", rol);
-     } else {
-       console.warn("Role is undefined or null, not storing in session storage");
-       sessionStorage.removeItem("rol"); // Remove any existing role
-     }
-     
-     
-
-     
-     if(authToken){
-
+     // Save the complete user data in sessionStorage
+     if (authToken && userData) {
+       sessionStorage.setItem("token", authToken);
+       sessionStorage.setItem("userData", JSON.stringify(userData));
+       
        toast.success("Ingreso correcto");
 
-       // Redirect based on user role (case-insensitive comparison and trim whitespace)
-       const userRole = rol?.trim().toLowerCase();
+       // Navigate to prestamos (the main protected route)
+       navigate("/prestamos");
        
-       if (userRole === "admin") {
-         navigate("/registrousuario");
-       } else {
-         navigate("/");
-       }
+       // Don't reload the page - let React Router handle the navigation
 
-       window.location.reload();
-
-      } else {
+     } else {
         toast.error("Error en el ingreso - Token no recibido");
         setLoginData(initialState);
       }
