@@ -143,7 +143,7 @@ export const ListaPrestamos = () => {
       wrap: true
     },
     {
-      name: "F. Solicitud",
+      name: "Fecha Solicitud",
       selector: row => row.fecha_solicitud,
       sortable: true,
       width: "140px",
@@ -159,7 +159,7 @@ export const ListaPrestamos = () => {
       wrap: true
     },
     {
-      name: "F. Inicio",
+      name: "Fecha Inicio",
       selector: row => row.fecha_inicio_solicitada,
       sortable: true,
       width: "140px",
@@ -175,7 +175,7 @@ export const ListaPrestamos = () => {
       wrap: true
     },
     {
-      name: "F. Fin",
+      name: "Fecha Fin",
       selector: row => row.fecha_fin_solicitada,
       sortable: true,
       width: "140px",
@@ -251,7 +251,7 @@ export const ListaPrestamos = () => {
       width: "120px"
     },
     {
-      name: "F. Entrega",
+      name: "Fecha Entrega",
       selector: row => row.fecha_entrega,
       sortable: true,
       width: "140px",
@@ -268,7 +268,7 @@ export const ListaPrestamos = () => {
       wrap: true
     },
     {
-      name: "F. Devolución",
+      name: "Fecha Devolución",
       selector: row => row.fecha_devolucion,
       sortable: true,
       width: "140px",
