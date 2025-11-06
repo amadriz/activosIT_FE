@@ -199,7 +199,9 @@ export const RegistroUsuario = () => {
                 >
                   <option value="">Seleccionar rol</option>
                   <option value="admin">Administrador</option>
-                  <option value="user">Usuario</option>
+                  <option value="estudiante">Estudiante</option>
+                  <option value="profesor">Profesor</option>
+                  <option value="tecnico">Técnico</option>
                   
                 </Form.Select>
                 <Form.Control.Feedback type="invalid">

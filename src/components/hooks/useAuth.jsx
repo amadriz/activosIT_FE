@@ -1,21 +1,51 @@
-import { useMemo } from 'react';
+import { useState, useEffect } from 'react';
 
 export const useAuth = () => {
-  const userData = useMemo(() => {
+  const [userData, setUserData] = useState({});
+  const [token, setToken] = useState(null);
+
+  // Function to read auth data from sessionStorage
+  const readAuthData = () => {
     try {
-      return JSON.parse(sessionStorage.getItem('userData') || '{}');
+      const storedUserData = JSON.parse(sessionStorage.getItem('userData') || '{}');
+      const storedToken = sessionStorage.getItem('token');
+      setUserData(storedUserData);
+      setToken(storedToken);
     } catch (error) {
       console.error('Error parsing userData from sessionStorage:', error);
-      return {};
+      setUserData({});
+      setToken(null);
     }
-  }, []);
+  };
 
-  const token = sessionStorage.getItem('token');
+  // Read initial auth data and listen for storage changes
+  useEffect(() => {
+    readAuthData();
+
+    // Listen for storage changes (when sessionStorage is updated)
+    const handleStorageChange = (e) => {
+      if (e.key === 'userData' || e.key === 'token') {
+        readAuthData();
+      }
+    };
+
+    // Listen for custom event when login updates sessionStorage
+    const handleAuthUpdate = () => {
+      readAuthData();
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('authUpdate', handleAuthUpdate);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('authUpdate', handleAuthUpdate);
+    };
+  }, []);
   
   // Considerar logueado si hay token Y userData con información básica
   const isLoggedIn = !!(token && (userData?.email || userData?.authToken));
   const userRole = userData?.rol;
-  const userName = userData?.nombre || userData?.name;
   const userEmail = userData?.email;
 
   // Función para verificar si el usuario tiene un rol específico
@@ -56,6 +86,10 @@ export const useAuth = () => {
     sessionStorage.removeItem('token');
     sessionStorage.removeItem('email');
     sessionStorage.removeItem('rol'); // Por si había datos del formato anterior
+    
+    // Trigger auth update event
+    window.dispatchEvent(new CustomEvent('authUpdate'));
+    
     window.location.href = '/login';
   };
 
@@ -64,8 +98,9 @@ export const useAuth = () => {
     userData,
     isLoggedIn,
     userRole,
-    userName,
     userEmail,
+    nombre: userData?.nombre,
+    apellido: userData?.apellido,
     
     // Funciones de verificación de roles
     hasRole,

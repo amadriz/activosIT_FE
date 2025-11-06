@@ -75,12 +75,13 @@ export const Login = () => {
        sessionStorage.setItem("token", authToken);
        sessionStorage.setItem("userData", JSON.stringify(userData));
        
+       // Trigger auth update event to update UI components
+       window.dispatchEvent(new CustomEvent('authUpdate'));
+       
        toast.success("Ingreso correcto");
 
        // Navigate to prestamos (the main protected route)
        navigate("/prestamos");
-       
-       // Don't reload the page - let React Router handle the navigation
 
      } else {
         toast.error("Error en el ingreso - Token no recibido");

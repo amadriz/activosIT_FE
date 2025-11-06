@@ -7,11 +7,37 @@ export const categoriasApi = createApi({
   endpoints: (builder) => ({
 
     getCategorias: builder.query({
-      query: () => '/categorias/fetchCategorias',
+      query: () => 'categorias/fetchCategorias',
       providesTags: ['Categoria'],
     }),
+
+    agregarCategoria: builder.mutation({
+      query: (newCategoria) => ({
+        url: 'categorias/agregarCategoria',
+        method: 'POST',
+        body: newCategoria,
+      }),
+      invalidatesTags: ['Categoria'],
+    }),
+
+    actualizarCategoria: builder.mutation({
+      query: ({ id, ...updatedCategoria }) => ({
+        url: `categorias/actualizarCategoria/${id}`,
+        method: 'PUT',
+        body: updatedCategoria,
+      }),
+      invalidatesTags: ['Categoria'],
+    }),
+
+    eliminarCategoria: builder.mutation({
+      query: (id) => ({
+        url: `categorias/eliminarCategoria/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Categoria'],
+    }), 
     
   }),
 });
 
-export const { useGetCategoriasQuery } = categoriasApi;
+export const { useGetCategoriasQuery, useAgregarCategoriaMutation, useActualizarCategoriaMutation, useEliminarCategoriaMutation } = categoriasApi;

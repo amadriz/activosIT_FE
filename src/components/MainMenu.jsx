@@ -8,7 +8,17 @@ import { useNavigate } from 'react-router-dom';
 import './prestamos/EstilosPrestamo.css';
 
 export const MainMenu = () => {
-  const { isLoggedIn, isAdmin, userRole, userName, logout } = useAuth();
+  const { 
+    isLoggedIn, 
+    isAdmin, 
+    isStudent, 
+    isTeacher, 
+    isTechnician,
+    userRole, 
+    userEmail, 
+    logout 
+  } = useAuth();
+
   const navigate = useNavigate();
 
   const handleNavigation = (path) => {
@@ -35,14 +45,20 @@ export const MainMenu = () => {
               <NavDropdown.Item onClick={() => handleNavigation('/prestamos')}>
                 <i className="fas fa-list me-2"></i>Ver Préstamos
               </NavDropdown.Item>
-              <NavDropdown.Item onClick={() => handleNavigation('/solicitarprestamo')}>
-                <i className="fas fa-plus-circle me-2"></i>Solicitar Préstamo
-              </NavDropdown.Item>
+              
+              {/* Solicitar préstamo - Solo para estudiantes y profesores */}
+              {(isStudent() || isTeacher()) && (
+                <NavDropdown.Item onClick={() => handleNavigation('/solicitarprestamo')}>
+                  <i className="fas fa-plus-circle me-2"></i>Solicitar Préstamo
+                </NavDropdown.Item>
+              )}
             </NavDropdown>
 
-            {/* Sección Administrativa - Solo para administradores */}
-            {isAdmin && (
+            {/* Sección Administrativa - Solo para administradores y técnicos */}
+            {(isAdmin() || isTechnician()) && (
               <NavDropdown title={<><i className="fas fa-cog me-1"></i>Administración</>} id="admin-dropdown">
+                
+                {/* Gestión de Activos - Para admin y técnicos */}
                 <NavDropdown.Header>Gestión de Activos</NavDropdown.Header>
                 <NavDropdown.Item onClick={() => handleNavigation('/listaactivos')}>
                   <i className="fas fa-laptop me-2"></i>Lista de Activos
@@ -50,11 +66,17 @@ export const MainMenu = () => {
                 <NavDropdown.Item onClick={() => handleNavigation('/agregaractivo')}>
                   <i className="fas fa-plus me-2"></i>Agregar Activo
                 </NavDropdown.Item>
-                <NavDropdown.Divider />
-                <NavDropdown.Header>Gestión de Usuarios</NavDropdown.Header>
-                <NavDropdown.Item onClick={() => handleNavigation('/register')}>
-                  <i className="fas fa-user-plus me-2"></i>Registrar Usuario
-                </NavDropdown.Item>
+                
+                {/* Gestión de Usuarios - Solo para administradores */}
+                {isAdmin() && (
+                  <>
+                    <NavDropdown.Divider />
+                    <NavDropdown.Header>Gestión de Usuarios</NavDropdown.Header>
+                    <NavDropdown.Item onClick={() => handleNavigation('/register')}>
+                      <i className="fas fa-user-plus me-2"></i>Registrar Usuario
+                    </NavDropdown.Item>
+                  </>
+                )}
               </NavDropdown>
             )}
 
@@ -66,7 +88,7 @@ export const MainMenu = () => {
               title={
                 <span>
                   <i className="fas fa-user-circle me-1"></i>
-                  {userName || 'Usuario'} 
+                  {userEmail || 'Usuario'} 
                   <Badge bg="secondary" className="ms-2">{userRole}</Badge>
                 </span>
               } 
@@ -76,7 +98,7 @@ export const MainMenu = () => {
               <NavDropdown.Header>
                 <div className="text-center">
                   <i className="fas fa-user-circle fa-2x mb-2"></i>
-                  <div><strong>{userName || 'Usuario'}</strong></div>
+                  <div><strong>{userEmail || 'Usuario'}</strong></div>
                   <small className="text-muted">{userRole}</small>
                 </div>
               </NavDropdown.Header>

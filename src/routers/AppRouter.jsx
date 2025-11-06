@@ -6,6 +6,9 @@ import { ProtectedRoute } from "../components/auth/ProtectedRoute"
 import { ListaActivos } from "../components/activos/ListaActivos"
 import { AgregarActivos } from "../components/activos/AgregarActivos"
 import { ActualizarActivos } from "../components/activos/ActualizarActivos"
+import { ListaCategorias } from "../components/categorias/ListaCategorias"
+import { AgregarCategoria } from "../components/categorias/AgregarCategoria"
+import { ActualizarCategoria } from "../components/categorias/ActualizarCategoria"
 import { Footer } from "../components/Footer"
 import { ListaPrestamos } from "../components/prestamos/listaPrestamos"
 import { SolicitarPrestamo } from "../components/prestamos/SolicitarPrestamo"
@@ -44,6 +47,21 @@ export const AppRouter = () => {
             <Route path="/actualizaractivos/:id" element={
               <ProtectedRoute allowedRoles={["admin"]}>
                 <ActualizarActivos />
+              </ProtectedRoute>
+            } />
+            <Route path="/listacategorias" element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <ListaCategorias />
+              </ProtectedRoute>
+            } />
+            <Route path="/agregarcategoria" element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <AgregarCategoria />
+              </ProtectedRoute>
+            } />
+            <Route path="/actualizarcategoria/:id" element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <ActualizarCategoria />
               </ProtectedRoute>
             } />
             <Route path="/aprobarprestamo/:id" element={

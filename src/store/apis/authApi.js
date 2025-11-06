@@ -9,6 +9,9 @@ export const authApi = createApi({
         getUsuarios: builder.query({
             query: () => 'Usuario/fetchUsers',
         }),
+        getUsuarioById: builder.query({
+            query: (userId) => `Usuario/fetchUser/${userId}`,
+        }),
         login: builder.mutation({
             query: (loginData) => ({
                 url: 'Usuario/login',
@@ -28,6 +31,7 @@ export const authApi = createApi({
 
 export const { 
     useGetUsuariosQuery, 
+    useGetUsuarioByIdQuery,
     useLoginMutation, 
     useRegisterMutation 
 } = authApi;
