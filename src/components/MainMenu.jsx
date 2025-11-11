@@ -66,6 +66,16 @@ export const MainMenu = () => {
                 <NavDropdown.Item onClick={() => handleNavigation('/agregaractivo')}>
                   <i className="fas fa-plus me-2"></i>Agregar Activo
                 </NavDropdown.Item>
+                <NavDropdown.Header>Gestión de Catálogos</NavDropdown.Header>
+                <NavDropdown.Item onClick={() => handleNavigation('/listacategorias')}>
+                  <i className="fas fa-laptop me-2"></i>Lista de Categorías
+                </NavDropdown.Item>
+                <NavDropdown.Item onClick={() => handleNavigation('/listaubicaciones')}>
+                  <i className="fas fa-laptop me-2"></i>Lista de Ubicaciones
+                </NavDropdown.Item>
+                <NavDropdown.Item onClick={() => handleNavigation('/listamarcas')}>
+                  <i className="fas fa-laptop me-2"></i>Lista de Marcas-Activos
+                </NavDropdown.Item>
                 
                 {/* Gestión de Usuarios - Solo para administradores */}
                 {isAdmin() && (

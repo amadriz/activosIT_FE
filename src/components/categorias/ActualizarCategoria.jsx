@@ -136,7 +136,7 @@ export const ActualizarCategoria = () => {
       <Row className="justify-content-center">
         <Col md={8} lg={6}>
           <Card className="shadow">
-            <Card.Header className="bg-warning text-dark">
+            <Card.Header className="text-dark">
               <h4 className="mb-0">
                 <i className="bi bi-pencil-square me-2"></i>
                 Actualizar Categoría

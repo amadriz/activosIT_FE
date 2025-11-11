@@ -10,8 +10,39 @@ export const ubicacionesApi = createApi({
       query: () => '/ubicaciones/fetchUbicaciones',
       providesTags: ['Ubicacion'],
     }),
+
+    agregarUbicacion: builder.mutation({
+      query: (newUbicacion) => ({
+        url: '/ubicaciones/agregarUbicacion', 
+        method: 'POST',
+        body: newUbicacion,
+      }),
+      invalidatesTags: ['Ubicacion'],
+    }),
+
+    actualizarUbicacion: builder.mutation({
+      query: ({ id, ...updatedUbicacion }) => ({
+        url: `/ubicaciones/actualizarUbicacion/${id}`,
+        method: 'PUT',
+        body: updatedUbicacion,
+      }),
+      invalidatesTags: ['Ubicacion'],
+    }),
+
+    eliminarUbicacion: builder.mutation({
+      query: (id) => ({
+        url: `/ubicaciones/eliminarUbicacion/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Ubicacion'],
+    }),
     
   }),
 });
 
-export const { useGetUbicacionesQuery } = ubicacionesApi;
+export const { 
+  useGetUbicacionesQuery, 
+  useAgregarUbicacionMutation, 
+  useActualizarUbicacionMutation, 
+  useEliminarUbicacionMutation 
+} = ubicacionesApi;

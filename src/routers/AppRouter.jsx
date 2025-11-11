@@ -15,6 +15,12 @@ import { SolicitarPrestamo } from "../components/prestamos/SolicitarPrestamo"
 import { AprobarPrestamo } from "../components/prestamos/AprobarPrestamo"
 import { EntregarPrestamo } from "../components/prestamos/EntregarPrestamo"
 import { DevolverPrestamo } from "../components/prestamos/DevolverPrestamo"
+import { ListaUbicaciones } from "../components/ubicaciones/ListaUbicaciones"
+import { ActualizarUbicacion } from "../components/ubicaciones/ActualizarUbicacion"
+import { AgregarUbicacion } from "../components/ubicaciones/AgregarUbicacion"
+import { ListaMarcas } from "../components/marcas/ListaMarcas"
+import { AgregarMarca } from "../components/marcas/AgregarMarca"
+import { ActualizarMarca } from "../components/marcas/ActualizarMarca"
 
 
 
@@ -25,7 +31,6 @@ export const AppRouter = () => {
         <MainMenu />
         <main className="flex-grow-1">
           <Routes>
-            {/* Rutas públicas */}
             <Route path="/login" element={<Login />} />
             
             {/* Rutas solo para administradores */}
@@ -34,6 +39,8 @@ export const AppRouter = () => {
                 <RegistroUsuario />
               </ProtectedRoute>
             } />
+            
+            {/* RUTAS ACTIVOS */}
             <Route path="/agregaractivo" element={
               <ProtectedRoute allowedRoles={["admin"]}>
                 <AgregarActivos />
@@ -49,6 +56,7 @@ export const AppRouter = () => {
                 <ActualizarActivos />
               </ProtectedRoute>
             } />
+            {/* RUTAS CATEGORIAS */}
             <Route path="/listacategorias" element={
               <ProtectedRoute allowedRoles={["admin"]}>
                 <ListaCategorias />
@@ -64,6 +72,23 @@ export const AppRouter = () => {
                 <ActualizarCategoria />
               </ProtectedRoute>
             } />
+            {/* RUTAS UBICACIONES */}
+            <Route path="/listaubicaciones" element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <ListaUbicaciones />
+              </ProtectedRoute>
+            } />
+            <Route path="/agregarubicacion" element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <AgregarUbicacion />
+              </ProtectedRoute>
+            } />
+            <Route path="/actualizarubicacion/:id" element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <ActualizarUbicacion />
+              </ProtectedRoute>
+            } />
+            {/* RUTAS PRESTAMO */}
             <Route path="/aprobarprestamo/:id" element={
               <ProtectedRoute allowedRoles={["admin"]}>
                 <AprobarPrestamo />
@@ -97,12 +122,31 @@ export const AppRouter = () => {
               </ProtectedRoute>
             } />
 
+            {/**RUTAS MARCAS **/}
+            <Route path="/listamarcas" element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <ListaMarcas />
+              </ProtectedRoute>
+            } />
+            <Route path="/agregarmarca" element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <AgregarMarca />
+              </ProtectedRoute>
+            } />
+            <Route path="/actualizarmarca/:id" element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <ActualizarMarca />
+              </ProtectedRoute>
+            } />
+          
             {/* Ruta por defecto */}
             <Route path="/" element={
               <ProtectedRoute allowedRoles={["admin",  "estudiante", "profesor"]}>
                 <ListaPrestamos />
               </ProtectedRoute>
             } />
+
+
             
             {/* Ruta de fallback */}
             <Route path="/*" element={<Login />} />
