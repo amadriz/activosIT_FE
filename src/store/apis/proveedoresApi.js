@@ -7,11 +7,37 @@ export const proveedoresApi = createApi({
   endpoints: (builder) => ({
 
     getProveedores: builder.query({
-      query: () => '/proveedores/fetchProveedores',
+      query: () => 'proveedores/fetchProveedores',
       providesTags: ['Proveedor'],
+    }),
+
+    agregarProveedor: builder.mutation({
+      query: (newProveedor) => ({
+        url: 'proveedores/agregarProveedor',
+        method: 'POST',
+        body: newProveedor,
+      }),
+      invalidatesTags: ['Proveedor'],
+    }),
+
+    actualizarProveedor: builder.mutation({
+      query: ({ id, ...updatedProveedor }) => ({
+        url: `proveedores/actualizarProveedor/${id}`,
+        method: 'PUT',
+        body: updatedProveedor,
+      }),
+      invalidatesTags: ['Proveedor'],
+    }),
+
+    eliminarProveedor: builder.mutation({
+      query: (id) => ({
+        url: `proveedores/eliminarProveedor/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Proveedor'],
     }),
     
   }),
 });
 
-export const { useGetProveedoresQuery } = proveedoresApi;
+export const { useGetProveedoresQuery, useAgregarProveedorMutation, useActualizarProveedorMutation, useEliminarProveedorMutation } = proveedoresApi;

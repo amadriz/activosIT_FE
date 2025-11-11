@@ -21,6 +21,9 @@ import { AgregarUbicacion } from "../components/ubicaciones/AgregarUbicacion"
 import { ListaMarcas } from "../components/marcas/ListaMarcas"
 import { AgregarMarca } from "../components/marcas/AgregarMarca"
 import { ActualizarMarca } from "../components/marcas/ActualizarMarca"
+import { ListaProveedores } from "../components/proveedores/ListaProveedores"
+import { AgregarProveedor } from "../components/proveedores/AgregarProveedor"
+import { ActualizarProveedor } from "../components/proveedores/ActualizarProveedor"
 
 
 
@@ -136,6 +139,33 @@ export const AppRouter = () => {
             <Route path="/actualizarmarca/:id" element={
               <ProtectedRoute allowedRoles={["admin"]}>
                 <ActualizarMarca />
+              </ProtectedRoute>
+            } />
+
+            {/* RUTAS PROVEEDORES */}
+            <Route path="/listaproveedores" element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <ListaProveedores />
+              </ProtectedRoute>
+            } />
+            <Route path="/agregarproveedor" element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <AgregarProveedor />
+              </ProtectedRoute>
+            } />
+            <Route path="/actualizarproveedor/:id" element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <ActualizarProveedor />
+              </ProtectedRoute>
+            } />
+            <Route path="/agregarproveedor" element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <AgregarProveedor />
+              </ProtectedRoute>
+            } />
+            <Route path="/actualizarproveedor/:id" element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <ActualizarProveedor />
               </ProtectedRoute>
             } />
           

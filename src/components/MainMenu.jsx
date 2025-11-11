@@ -76,6 +76,9 @@ export const MainMenu = () => {
                 <NavDropdown.Item onClick={() => handleNavigation('/listamarcas')}>
                   <i className="fas fa-laptop me-2"></i>Lista de Marcas-Activos
                 </NavDropdown.Item>
+                <NavDropdown.Item onClick={() => handleNavigation('/listaproveedores')}>
+                  <i className="fas fa-laptop me-2"></i>Lista de Proveedores
+                </NavDropdown.Item>
                 
                 {/* Gestión de Usuarios - Solo para administradores */}
                 {isAdmin() && (

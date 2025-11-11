@@ -35,14 +35,7 @@ export const marcasApi = createApi({
         method: 'DELETE',
       }),
       invalidatesTags: ['Marca'],
-    }),
-
-    // New endpoint to check if marca is in use by activos
-    verificarMarcaEnUso: builder.query({
-      query: (id) => `/marcas/verificarUso/${id}`,
-      providesTags: (result, error, id) => [{ type: 'Marca', id: 'USAGE' }],
-    }),
-    
+    }),   
   }),
 });
 
