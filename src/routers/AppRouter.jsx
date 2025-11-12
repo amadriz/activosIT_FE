@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom"
+import { HashRouter, Route, Routes } from "react-router-dom"
 import { MainMenu } from "../components/MainMenu"
 import { Login } from "../components/auth/Login"
 import { RegistroUsuario } from "../components/auth/RegistroUsuario"
@@ -29,7 +29,7 @@ import { ActualizarProveedor } from "../components/proveedores/ActualizarProveed
 
 export const AppRouter = () => {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <div className="d-flex flex-column min-vh-100">
         <MainMenu />
         <main className="flex-grow-1">
@@ -184,6 +184,6 @@ export const AppRouter = () => {
         </main>
         <Footer />
       </div>
-    </BrowserRouter>
+    </HashRouter>
   )
 }

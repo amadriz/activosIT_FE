@@ -90,7 +90,8 @@ export const useAuth = () => {
     // Trigger auth update event
     window.dispatchEvent(new CustomEvent('authUpdate'));
     
-    window.location.href = '/login';
+    // Use relative path that works with both local and production
+    window.location.href = window.location.origin + window.location.pathname + '#/login';
   };
 
   return {

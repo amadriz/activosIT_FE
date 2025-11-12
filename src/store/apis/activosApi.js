@@ -2,18 +2,19 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 export const activosApi = createApi({
   reducerPath: 'activosApi',
-  baseQuery: fetchBaseQuery({ baseUrl: 'http://localhost/activosIT_BE/' }),
+  //baseQuery: fetchBaseQuery({ baseUrl: 'http://localhost/activosIT_BE/' }),
+  baseQuery: fetchBaseQuery({ baseUrl: 'https://www.supersaloncr.com/activosituhispa/activosIT_BE/'}),
   tagTypes: ['Activo'],
   endpoints: (builder) => ({
     
     getActivos: builder.query({
-      query: () => '/activos/fetchActivos',
+      query: () => 'activos/fetchActivos',
       providesTags: ['Activo'],
     }),
 
     addActivo: builder.mutation({
       query: (newActivo) => ({
-        url: '/activos/agregarActivos',
+        url: 'activos/agregarActivos',
         method: 'POST',
         body: newActivo,
       }),

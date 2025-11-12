@@ -2,7 +2,8 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 export const prestamosApi = createApi({
   reducerPath: 'prestamosApi',
-  baseQuery: fetchBaseQuery({ baseUrl: 'http://localhost/activosIT_BE' }),
+  //baseQuery: fetchBaseQuery({ baseUrl: 'http://localhost/activosIT_BE' }),
+  baseQuery: fetchBaseQuery({ baseUrl: 'https://www.supersaloncr.com/activosituhispa/activosIT_BE/' }),
   tagTypes: ['Prestamo'],
   endpoints: (builder) => ({
     getPrestamos: builder.query({

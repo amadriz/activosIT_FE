@@ -3,8 +3,8 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 export const authApi = createApi({
     reducerPath: 'authApi',
-    //baseQuery: fetchBaseQuery({ baseUrl: 'https://pecosacr.com/agentesPecosa/agentespecosaBE/' }),
-    baseQuery: fetchBaseQuery({ baseUrl: 'http://localhost/activosIT_BE/' }),
+    baseQuery: fetchBaseQuery({ baseUrl: 'https://www.supersaloncr.com/activosituhispa/activosIT_BE/' }),
+    //baseQuery: fetchBaseQuery({ baseUrl: 'http://localhost/activosIT_BE/' }),
     endpoints: (builder) => ({
         getUsuarios: builder.query({
             query: () => 'Usuario/fetchUsers',

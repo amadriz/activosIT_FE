@@ -2,18 +2,19 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 export const ubicacionesApi = createApi({
   reducerPath: 'ubicacionesApi',
-  baseQuery: fetchBaseQuery({ baseUrl: 'http://localhost/activosIT_BE/' }),
+  //baseQuery: fetchBaseQuery({ baseUrl: 'http://localhost/activosIT_BE/' }),
+  baseQuery: fetchBaseQuery({ baseUrl: 'https://www.supersaloncr.com/activosituhispa/activosIT_BE/' }),
   tagTypes: ['Ubicacion'],
   endpoints: (builder) => ({
 
     getUbicaciones: builder.query({
-      query: () => '/ubicaciones/fetchUbicaciones',
+      query: () => 'ubicaciones/fetchUbicaciones',
       providesTags: ['Ubicacion'],
     }),
 
     agregarUbicacion: builder.mutation({
       query: (newUbicacion) => ({
-        url: '/ubicaciones/agregarUbicacion', 
+        url: 'ubicaciones/agregarUbicacion', 
         method: 'POST',
         body: newUbicacion,
       }),
@@ -22,7 +23,7 @@ export const ubicacionesApi = createApi({
 
     actualizarUbicacion: builder.mutation({
       query: ({ id, ...updatedUbicacion }) => ({
-        url: `/ubicaciones/actualizarUbicacion/${id}`,
+        url: `ubicaciones/actualizarUbicacion/${id}`,
         method: 'PUT',
         body: updatedUbicacion,
       }),
@@ -31,7 +32,7 @@ export const ubicacionesApi = createApi({
 
     eliminarUbicacion: builder.mutation({
       query: (id) => ({
-        url: `/ubicaciones/eliminarUbicacion/${id}`,
+        url: `ubicaciones/eliminarUbicacion/${id}`,
         method: 'DELETE',
       }),
       invalidatesTags: ['Ubicacion'],
