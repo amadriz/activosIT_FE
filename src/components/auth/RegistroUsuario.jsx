@@ -245,6 +245,14 @@ export const RegistroUsuario = () => {
                 <Button className="btn-submit-custom" type="submit">
                   Enviar
                 </Button>
+                {/* add cancelar btn */}
+                <Button
+                  className="btn-cancelar-custom ms-3"
+                  variant="secondary"
+                  onClick={() => navigate("/")}
+                >
+                  Cancelar
+                </Button>
                 
               </div>
             </Form>
