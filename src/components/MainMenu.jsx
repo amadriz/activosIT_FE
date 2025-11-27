@@ -58,6 +58,16 @@ export const MainMenu = () => {
             {(isAdmin() || isTechnician()) && (
               <NavDropdown title={<><i className="fas fa-cog me-1"></i>Administración</>} id="admin-dropdown">
                 
+                {/* Dashboard - Solo para administradores */}
+                {isAdmin() && (
+                  <>
+                    <NavDropdown.Item onClick={() => handleNavigation('/dashboard')}>
+                      <i className="fas fa-chart-bar me-2"></i>Dashboard
+                    </NavDropdown.Item>
+                    <NavDropdown.Divider />
+                  </>
+                )}
+                
                 {/* Gestión de Activos - Para admin y técnicos */}
                 <NavDropdown.Header>Gestión de Activos</NavDropdown.Header>
                 <NavDropdown.Item onClick={() => handleNavigation('/listaactivos')}>

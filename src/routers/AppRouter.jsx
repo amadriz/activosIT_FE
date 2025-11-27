@@ -24,6 +24,7 @@ import { ActualizarMarca } from "../components/marcas/ActualizarMarca"
 import { ListaProveedores } from "../components/proveedores/ListaProveedores"
 import { AgregarProveedor } from "../components/proveedores/AgregarProveedor"
 import { ActualizarProveedor } from "../components/proveedores/ActualizarProveedor"
+import { Dashboard } from "../components/dashboard/Dashboard"
 
 
 
@@ -35,6 +36,13 @@ export const AppRouter = () => {
         <main className="flex-grow-1">
           <Routes>
             <Route path="/login" element={<Login />} />
+            
+            {/* Dashboard route - for admins */}
+            <Route path="/dashboard" element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <Dashboard />
+              </ProtectedRoute>
+            } />
             
             {/* Rutas solo para administradores */}
             <Route path="/register" element={

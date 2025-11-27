@@ -7,6 +7,7 @@ import { proveedoresApi } from './apis/proveedoresApi'
 import { ubicacionesApi } from './apis/ubicacionesApi'
 import { categoriasApi } from './apis/categoriasApi'
 import { prestamosApi } from './apis/prestamosApi'
+import { dashboardApi } from './apis/dashboardApi'
 
 export const store = configureStore({
   reducer: {
@@ -19,6 +20,7 @@ export const store = configureStore({
     [proveedoresApi.reducerPath]: proveedoresApi.reducer,
     [ubicacionesApi.reducerPath]: ubicacionesApi.reducer,
     [categoriasApi.reducerPath]: categoriasApi.reducer,
+    [dashboardApi.reducerPath]: dashboardApi.reducer,
 
   },
   middleware: (getDefaultMiddleware) =>
@@ -30,7 +32,8 @@ export const store = configureStore({
       proveedoresApi.middleware,
       ubicacionesApi.middleware,
       categoriasApi.middleware,
-      prestamosApi.middleware
+      prestamosApi.middleware,
+      dashboardApi.middleware
     ),
 
 })
