@@ -4,6 +4,7 @@ import { ActivosTendencia } from './ActivosTendencia';
 import { PrestamosTasaAprobacion } from './PrestamosTasaAprobacion';
 import { PrestamosResumen } from './PrestamosResumen';
 import { ActivosMasPrestados } from './ActivosMasPrestados';
+import { UsuariosMasActivos } from './UsuariosMasActivos';
 
 export const Dashboard = () => {
   return (
@@ -38,6 +39,12 @@ export const Dashboard = () => {
       <Row>
         <Col className="mb-4">
           <ActivosMasPrestados />
+        </Col>
+      </Row>
+      
+      <Row>
+        <Col className="mb-4">
+          <UsuariosMasActivos />
         </Col>
       </Row>
     </Container>

@@ -29,7 +29,12 @@ export const dashboardApi = createApi({
       query: () => 'dashboard/activosMasPrestados',
       providesTags: ['dashboard'],
     }),
+
+    getUsuariosMasActivos: builder.query({
+      query: () => 'dashboard/usuariosMasActivos',
+      providesTags: ['dashboard'],
+    }),
   }),
 });
 
-export const { useGetActivosResumenQuery, useGetActivosTendenciaQuery, useGetPrestamosTasaAprobacionQuery, useGetPrestamosResumenQuery, useGetActivosMasPrestadosQuery } = dashboardApi;
+export const { useGetActivosResumenQuery, useGetActivosTendenciaQuery, useGetPrestamosTasaAprobacionQuery, useGetPrestamosResumenQuery, useGetActivosMasPrestadosQuery, useGetUsuariosMasActivosQuery } = dashboardApi;
